@@ -7,17 +7,77 @@
   </head>
   <body>
 	  <!-- External JS libraries -->
-	  <script src="https://d3js.org/d3.v7.min.js"></script>
+	  <script src="https://d3js.org/d3.v6.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.js"></script>
 
-    <h1>Narrative Visualization Final Project</h1>
-    <h2>Emily Meyer</h2>
-    <p>Paragraph
+    <h1>CS 416: Narrative Visualization Final Project</h1>
+    <h2>Population by Age and Gender in Illinois</h2>
+    <h3>By: Emily Meyer</h3>
+    <div id = "chart_2020"></div>
+    <div id = "chart_2021"></div>
+    <div id = "chart_2022"></div>
+    <div id = "chart_2023"></div>
+
     <script>
-      var values = [4, 8, 15, 16];
-      for (i=0; i< values.length; i++){document.write(values[i] + ' ')}
+      //Setting up the canvas
+      const margin = {top:30, right:30, bottom:70, left:60},
+        width = 1200 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+      //add svg to div
+      const svg = d3.select("#chart_2020")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      //add the data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/SC-EST2023-SYASEX-17.csv").then(function(data){
+
+      //X-axis
+      const x = d3.scaleBand().domain(data.map(d => d.Age)).range([0, width]);
+      svg.append("g")
+      .attr("transform", "translate(0, " + height + ")").call(d3.axisBottom(x)).style("text-anchor", "end");
+
+      //Y-axis
+      const y = d3.scaleLinear().domain([0, 250000]).range([height, 0]);
+      svg.append("g").call(d3.axisLeft(y));
+
+      //Bars
+      svg.selectAll("mybar")
+        .data(data)
+        .join("rect")
+            .attr("x", d => x(d.Age))
+            .attr("y", d => y(d.TotalPopulation_2020))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.TotalPopulation_2020))
+            .attr("fill", "steelblue");
+      })
     </script>
-    <button>Back</button>
+      <!-- Slider -->
+        <p>Age Range</p>
+        <input type="range" name="usrname">
+        
+
+      <!-- Dropdown button -->
+        <p>Year</p>
+        <select>
+            <option value="o1">2020</option>
+            <option value="o2">2021</option>
+            <option value="o3">2022</option>
+            <option value="o4">2023</option>
+        </select>
+    </script>
+
+
+    <p>This interactive visualization follows a martini glass structure to explore the population of Illinois 
+        between 2021 and 2023 by age and gender.</p>
+    <!-- Site Navigation -->
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button>4</button>
     <button>Next</button>
     </p>
   </body>
