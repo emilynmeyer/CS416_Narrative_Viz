@@ -25,12 +25,7 @@
     
     <!-- Dropdown button -->
     <p>Year</p>
-    <select>
-        <option onclick="update(TotalPopulation_2020)">2020</option>
-        <option onclick="update(TotalPopulation_2021)">2021</option>
-        <option onclick="update(TotalPopulation_2022)">2022</option>
-        <option onclick="update(TotalPopulation_2022)">2023</option>
-    </select>
+    <select id = "selectYear"></select>
 
     <div id = "chart"></div>
 
@@ -51,7 +46,19 @@
       //add the data
       d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/SC-EST2023-SYASEX-17.csv").then(function(data){
       
-      //Create Datasets
+      //List of all options
+      var years = ["Male_2020", "Male_2021", "Male_2022", "Male_2023",
+        "Female_2020", "Female_2021", "Female_2022", "Female_2023",
+        "TotalPopulation_2020", "TotalPopulation_2021", "TotalPopulation_2022", "TotalPopulation_2023"];
+      
+      // add the years to the dropdown
+      d3.select("#selectYear")
+        .selectAll('myOptions')
+     	    .data(years)
+        .enter()
+    	    .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }); // corresponding value returned by the button
 
       //X-axis
       const x = d3.scaleBand().domain(data.map(d => d.Age)).range([0, width]);
@@ -78,21 +85,46 @@
         .text("Population")
 
       //Bars
-      svg.selectAll("mybar")
+      var bars = svg.selectAll("mybar")
         .data(data)
         .join("rect")
             .attr("x", d => x(d.Age))
-            .attr("y", d => y(d.TotalPopulation_2023))
+            .attr("y", d => y(d.Male_2020))
             .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.TotalPopulation_2023))
+            .attr("height", d => height - y(d.Male_2020))
             .attr("fill", "steelblue");
 
+      //function that updates the chart
+      function scene(selectedYear) {
+        //Update dataset selection
+        var dataFilter = data.map(function(d){return {Age: d.Age, population:d[selectedYear]} })
+
+        //Update bars with dataFilter
+        bars
+          .data(dataFilter)
+          .transition()
+          .duration(1000)
+          .attr("x", d => x(d.Age))
+          .attr("y", d => y(d.population))
+          .attr("width", x.bandwidth())
+          .attr("height", d => height - y(d.population))
+          .attr("fill", "steelblue");
+      }
+      
+      // When the selectYear dropdown is changed, run the scene function
+      d3.select("#selectYear").on("change", function(d) {
+        var selectedOption = d3.select(this).property("value")
+        scene(selectedOption)
       })
+
+      })
+
     </script>
+
     
     <!-- Slider -->
         <p>Age Range</p>
-        <input type="range" name="usrname">
+        <input type="range" name="age_range">
     
     <!-- Add 3 buttons -->
         <button onclick="update(Male_2020)">Male</button>
