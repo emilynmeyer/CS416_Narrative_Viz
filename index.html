@@ -7,7 +7,7 @@
   </head>
   <body>
 	  <!-- External JS libraries -->
-	  <script src="https://d3js.org/d3.v6.js"></script>
+	  <script src="https://d3js.org/d3.v4.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.js"></script>
 
     <h1>CS 416: Narrative Visualization Final Project</h1>
@@ -27,109 +27,322 @@
     <p>Year</p>
     <select id = "selectYear"></select>
 
-    <div id = "chart"></div>
+    <style>
+      #chart2020.hidden {
+        display: none;}
+      #chart2021.hidden {
+        display: none;}
+      #chart2022.hidden {
+        display: none;}
+      #chart2023.hidden {
+        display: none;}
+    </style>
+
+    <div id="chart2020" class="hidden"></div>
+    <div id="chart2021" class="hidden"></div>
+    <div id="chart2022" class="hidden"></div>
+    <div id="chart2023" class="hidden"></div>
 
     <script>
-      //Setting up the canvas
-      const margin = {top:30, right:30, bottom:70, left:80},
-        width = 1200 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-
-      //add svg to div
-      const svg = d3.select("#chart")
-        .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      //add the data
-      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/SC-EST2023-SYASEX-17.csv").then(function(data){
-      
-      //List of all options
-      var years = ["Male_2020", "Male_2021", "Male_2022", "Male_2023",
-        "Female_2020", "Female_2021", "Female_2022", "Female_2023",
-        "TotalPopulation_2020", "TotalPopulation_2021", "TotalPopulation_2022", "TotalPopulation_2023"];
+      //List of all years for the dropdown
+      var years = ["2020", "2021", "2022", "2023"];
       
       // add the years to the dropdown
       d3.select("#selectYear")
-        .selectAll('myOptions')
-     	    .data(years)
-        .enter()
-    	    .append('option')
-        .text(function (d) { return d; }) // text showed in the menu
-        .attr("value", function (d) { return d; }); // corresponding value returned by the button
-
-      //X-axis
-      const x = d3.scaleBand().domain(data.map(d => d.Age)).range([0, width]);
-      svg.append("g")
-      .attr("transform", "translate(0, " + height + ")").call(d3.axisBottom(x)).style("text-anchor", "middle");
-
-      //Y-axis
-      const y = d3.scaleLinear().domain([0, 250000]).range([height, 0]);
-      svg.append("g").call(d3.axisLeft(y));
-
-      // Add X axis label:
-      svg.append("text")
-        .attr("text-anchor", "middle")
-        .attr("x", width/2)
-        .attr("y", height + margin.top + 20)
-        .text("Age");
-
-      // Y axis label:
-      svg.append("text")
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left+20)
-        .attr("x", -height/2)
-        .text("Population")
-
-      //Bars
-      var bars = svg.selectAll("mybar")
-        .data(data)
-        .join("rect")
-            .attr("x", d => x(d.Age))
-            .attr("y", d => y(d.Male_2020))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.Male_2020))
-            .attr("fill", "steelblue");
-
-      //function that updates the chart
-      function scene(selectedYear) {
-        //Update dataset selection
-        var dataFilter = data.map(function(d){return {Age: d.Age, population:d[selectedYear]} })
-
-        //Update bars with dataFilter
-        bars
-          .data(dataFilter)
-          .transition()
-          .duration(1000)
-          .attr("x", d => x(d.Age))
-          .attr("y", d => y(d.population))
-          .attr("width", x.bandwidth())
-          .attr("height", d => height - y(d.population))
-          .attr("fill", "steelblue");
-      }
+          .selectAll('myOptions')
+             .data(years)
+          .enter()
+            .append('option')
+          .text(function (d) { return d; }) // text showed in the menu
+          .attr("value", function (d) { return d; }); // corresponding value returned by the button
       
-      // When the selectYear dropdown is changed, run the scene function
+      // When the selectYear dropdown is changed, show the correct div
       d3.select("#selectYear").on("change", function(d) {
         var selectedOption = d3.select(this).property("value")
-        scene(selectedOption)
+        if(selectedOption === "2020"){
+          d3.select("#chart2020").classed("hidden", false);
+          d3.select("#chart2021").classed("hidden", true);
+          d3.select("#chart2022").classed("hidden", true);
+          d3.select("#chart2023").classed("hidden", true);}
+        else if(selectedOption === "2021"){d3.select("#chart2020").classed("hidden", true);
+          d3.select("#chart2021").classed("hidden", false);
+          d3.select("#chart2022").classed("hidden", true);
+          d3.select("#chart2023").classed("hidden", true);}
+        else if(selectedOption === "2022"){d3.select("#chart2020").classed("hidden", true);
+          d3.select("#chart2021").classed("hidden", true);
+          d3.select("#chart2022").classed("hidden", false);
+          d3.select("#chart2023").classed("hidden", true);}
+        else if(selectedOption === "2023"){d3.select("#chart2020").classed("hidden", true);
+          d3.select("#chart2021").classed("hidden", true);
+          d3.select("#chart2022").classed("hidden", true);
+          d3.select("#chart2023").classed("hidden", false);}
       })
 
+      // set the dimensions and margins of the graph
+      var margin = {top: 30, right: 30, bottom: 70, left: 80},
+          width = 1200 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+      
+      // append the svg object to the body of the page
+      var svg20 = d3.select("#chart2020")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
+      
+        // List of subgroups = header of the csv files = soil condition here
+        var subgroups = data.columns.slice(1)
+      
+        // List of groups = species here = value of the first column called group -> I show them on the X axis
+        var groups = d3.map(data, function(d){return(d.Age)}).keys()
+      
+        // Add X axis
+        var x = d3.scaleBand()
+            .domain(groups)
+            .range([0, width])
+            .padding([0.2])
+        svg20.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0));
+      
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([0, 250000])
+          .range([ height, 0 ]);
+        svg20.append("g")
+          .call(d3.axisLeft(y));
+      
+        // color palette = one color per subgroup
+        var color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#e41a1c','#377eb8'])
+      
+        //stack the data? --> stack per subgroup
+        var stackedData = d3.stack()
+          .keys(subgroups)
+          (data)
+      
+        // Show the bars
+        svg20.append("g")
+          .selectAll("g")
+          // Enter in the stack data = loop key per key = group per group
+          .data(stackedData)
+          .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+              .attr("x", function(d) { return x(d.data.Age); })
+              .attr("y", function(d) { return y(d[1]); })
+              .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+              .attr("width",x.bandwidth())
+            })
+//Start 2021 Data
+      // append the svg object to the body of the page
+      var svg21 = d3.select("#chart2021")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
+      
+        // List of subgroups = header of the csv files = soil condition here
+        var subgroups = data.columns.slice(1)
+      
+        // List of groups = species here = value of the first column called group -> I show them on the X axis
+        var groups = d3.map(data, function(d){return(d.Age)}).keys()
+      
+        // Add X axis
+        var x = d3.scaleBand()
+            .domain(groups)
+            .range([0, width])
+            .padding([0.2])
+        svg21.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0));
+      
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([0, 250000])
+          .range([ height, 0 ]);
+        svg21.append("g")
+          .call(d3.axisLeft(y));
+      
+        // color palette = one color per subgroup
+        var color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#e41a1c','#377eb8'])
+      
+        //stack the data? --> stack per subgroup
+        var stackedData = d3.stack()
+          .keys(subgroups)
+          (data)
+     
+        // Show the bars
+        svg21.append("g")
+          .selectAll("g")
+          // Enter in the stack data = loop key per key = group per group
+          .data(stackedData)
+          .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+              .attr("x", function(d) { return x(d.data.Age); })
+              .attr("y", function(d) { return y(d[1]); })
+              .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+              .attr("width",x.bandwidth())        
       })
 
-    </script>
+//Start 2022 Data
+      // append the svg object to the body of the page
+      var svg22 = d3.select("#chart2022")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2022.csv", function(data) {
+      
+        // List of subgroups = header of the csv files = soil condition here
+        var subgroups = data.columns.slice(1)
+      
+        // List of groups = species here = value of the first column called group -> I show them on the X axis
+        var groups = d3.map(data, function(d){return(d.Age)}).keys()
+      
+        // Add X axis
+        var x = d3.scaleBand()
+            .domain(groups)
+            .range([0, width])
+            .padding([0.2])
+        svg22.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0));
+      
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([0, 250000])
+          .range([ height, 0 ]);
+        svg22.append("g")
+          .call(d3.axisLeft(y));
+      
+        // color palette = one color per subgroup
+        var color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#e41a1c','#377eb8'])
+      
+        //stack the data? --> stack per subgroup
+        var stackedData = d3.stack()
+          .keys(subgroups)
+          (data)
+     
+        // Show the bars
+        svg22.append("g")
+          .selectAll("g")
+          // Enter in the stack data = loop key per key = group per group
+          .data(stackedData)
+          .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+              .attr("x", function(d) { return x(d.data.Age); })
+              .attr("y", function(d) { return y(d[1]); })
+              .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+              .attr("width",x.bandwidth())        
+      })
 
+//Start 2023 Data
+      // append the svg object to the body of the page
+      var svg23 = d3.select("#chart2023")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2023.csv", function(data) {
+      
+        // List of subgroups = header of the csv files = soil condition here
+        var subgroups = data.columns.slice(1)
+      
+        // List of groups = species here = value of the first column called group -> I show them on the X axis
+        var groups = d3.map(data, function(d){return(d.Age)}).keys()
+      
+        // Add X axis
+        var x = d3.scaleBand()
+            .domain(groups)
+            .range([0, width])
+            .padding([0.2])
+        svg23.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0));
+      
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([0, 250000])
+          .range([ height, 0 ]);
+        svg23.append("g")
+          .call(d3.axisLeft(y));
+      
+        // color palette = one color per subgroup
+        var color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#e41a1c','#377eb8'])
+      
+        //stack the data? --> stack per subgroup
+        var stackedData = d3.stack()
+          .keys(subgroups)
+          (data)
+     
+        // Show the bars
+        svg23.append("g")
+          .selectAll("g")
+          // Enter in the stack data = loop key per key = group per group
+          .data(stackedData)
+          .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            .data(function(d) { return d; })
+            .enter().append("rect")
+              .attr("x", function(d) { return x(d.data.Age); })
+              .attr("y", function(d) { return y(d[1]); })
+              .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+              .attr("width",x.bandwidth())        
+      })
+
+      </script>
     
     <!-- Slider -->
-        <p>Age Range</p>
-        <input type="range" name="age_range">
+        <p>Minimum Age</p>
+        <input type="range" name="minimumAge" min="0" max = "85+">
+
+        <p>Maximum Age</p>
+        <input type="range" name="maximumAge" min="0" max = "85+">
     
-    <!-- Add 3 buttons -->
-        <button onclick="update(Male_2020)">Male</button>
-        <button onclick="update(Female_2020)">Female</button>
-        <button onclick="update(TotalPopulation_2020)">Total Population</button>
+    <!-- Button -->
+        <div>
+          <input type="checkbox" class="checkbox" value="Male" checked><label>Male</label>
+          <input type="checkbox" class="checkbox" value="Female" checked><label>Female</label>
+        </div>
 
   </body>
 </html>
