@@ -13,19 +13,35 @@
     <h1>CS 416: Narrative Visualization Final Project</h1>
     <h2>Population by Age and Gender in Illinois</h2>
     <h3>By: Emily Meyer</h3>
-    <div id = "chart_2020"></div>
-    <div id = "chart_2021"></div>
-    <div id = "chart_2022"></div>
-    <div id = "chart_2023"></div>
+
+    <p>This interactive visualization follows a martini glass structure to explore the population of Illinois 
+        between 2020 and 2023 by age and gender.</p>
+    <!-- Site Navigation -->
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button>Try Me</button>
+    </p>
+    
+    <!-- Dropdown button -->
+    <p>Year</p>
+    <select>
+        <option onclick="update(TotalPopulation_2020)">2020</option>
+        <option onclick="update(TotalPopulation_2021)">2021</option>
+        <option onclick="update(TotalPopulation_2022)">2022</option>
+        <option onclick="update(TotalPopulation_2022)">2023</option>
+    </select>
+
+    <div id = "chart"></div>
 
     <script>
       //Setting up the canvas
-      const margin = {top:30, right:30, bottom:70, left:60},
+      const margin = {top:30, right:30, bottom:70, left:80},
         width = 1200 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
       //add svg to div
-      const svg = d3.select("#chart_2020")
+      const svg = d3.select("#chart")
         .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -34,51 +50,54 @@
 
       //add the data
       d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/SC-EST2023-SYASEX-17.csv").then(function(data){
+      
+      //Create Datasets
 
       //X-axis
       const x = d3.scaleBand().domain(data.map(d => d.Age)).range([0, width]);
       svg.append("g")
-      .attr("transform", "translate(0, " + height + ")").call(d3.axisBottom(x)).style("text-anchor", "end");
+      .attr("transform", "translate(0, " + height + ")").call(d3.axisBottom(x)).style("text-anchor", "middle");
 
       //Y-axis
       const y = d3.scaleLinear().domain([0, 250000]).range([height, 0]);
       svg.append("g").call(d3.axisLeft(y));
+
+      // Add X axis label:
+      svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("x", width/2)
+        .attr("y", height + margin.top + 20)
+        .text("Age");
+
+      // Y axis label:
+      svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left+20)
+        .attr("x", -height/2)
+        .text("Population")
 
       //Bars
       svg.selectAll("mybar")
         .data(data)
         .join("rect")
             .attr("x", d => x(d.Age))
-            .attr("y", d => y(d.TotalPopulation_2020))
+            .attr("y", d => y(d.TotalPopulation_2023))
             .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.TotalPopulation_2020))
+            .attr("height", d => height - y(d.TotalPopulation_2023))
             .attr("fill", "steelblue");
+
       })
     </script>
-      <!-- Slider -->
+    
+    <!-- Slider -->
         <p>Age Range</p>
         <input type="range" name="usrname">
-        
+    
+    <!-- Add 3 buttons -->
+        <button onclick="update(Male_2020)">Male</button>
+        <button onclick="update(Female_2020)">Female</button>
+        <button onclick="update(TotalPopulation_2020)">Total Population</button>
 
-      <!-- Dropdown button -->
-        <p>Year</p>
-        <select>
-            <option value="o1">2020</option>
-            <option value="o2">2021</option>
-            <option value="o3">2022</option>
-            <option value="o4">2023</option>
-        </select>
-    </script>
-
-
-    <p>This interactive visualization follows a martini glass structure to explore the population of Illinois 
-        between 2021 and 2023 by age and gender.</p>
-    <!-- Site Navigation -->
-    <button>1</button>
-    <button>2</button>
-    <button>3</button>
-    <button>4</button>
-    <button>Next</button>
-    </p>
   </body>
 </html>
