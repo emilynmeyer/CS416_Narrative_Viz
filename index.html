@@ -111,6 +111,7 @@
       sceneYear("2020")
 
     function scene1(){
+      d3.select("#Age").classed("hidden", true);
       // set the dimensions and margins of the graph
       var margin = {top: 30, right: 30, bottom: 70, left: 80},
           width = 1200 - margin.left - margin.right,
@@ -145,7 +146,7 @@
       
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([0, 250000])
+          .domain([0, d3.max(data, d => ((+d.Male) + (+d.Female)))])
           .range([ height, 0 ]);
         svg20.append("g")
           .call(d3.axisLeft(y));
@@ -222,7 +223,7 @@
       
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([0, 250000])
+          .domain([0, d3.max(data, d => ((+d.Male) + (+d.Female)))])
           .range([ height, 0 ]);
         svg21.append("g")
           .call(d3.axisLeft(y));
@@ -299,7 +300,7 @@
       
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([0, 250000])
+          .domain([0, d3.max(data, d => ((+d.Male) + (+d.Female)))])
           .range([ height, 0 ]);
         svg22.append("g")
           .call(d3.axisLeft(y));
@@ -376,7 +377,7 @@
       
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([0, 250000])
+          .domain([0, d3.max(data, d => ((+d.Male) + (+d.Female)))])
           .range([ height, 0 ]);
         svg23.append("g")
           .call(d3.axisLeft(y));
@@ -427,10 +428,12 @@
 
     function scene2(){
 
+      d3.select("#Age").classed("hidden", true);
+
       // set the dimensions and margins of the graph
       var margin = {top: 30, right: 30, bottom: 70, left: 80},
-          width = 1200 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+          width = 500 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
       
       // append the svg object to the body of the page
       var svg20 = d3.select("#chart2020")
@@ -446,7 +449,7 @@
       
         // Add X axis
         var x = d3.scaleLinear()
-          .domain([10000, 100000])
+          .domain([10000, d3.max(data, d => (+d.Male))])
           .range([ 0, width ]);
         svg20.append("g")
           .attr("transform", "translate(0," + height + ")")
@@ -461,7 +464,7 @@
 
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([10000, 150000])
+          .domain([10000, d3.max(data, d => (+d.Female))])
           .range([ height, 0]);
         svg20.append("g")
           .call(d3.axisLeft(y));
@@ -501,7 +504,7 @@
       d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
       // Add X axis
       var x = d3.scaleLinear()
-          .domain([10000, 100000])
+          .domain([10000, d3.max(data, d => (+d.Male))])
           .range([ 0, width ]);
         svg21.append("g")
           .attr("transform", "translate(0," + height + ")")
@@ -516,7 +519,7 @@
 
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([10000, 150000])
+          .domain([10000, d3.max(data, d => (+d.Female))])
           .range([ height, 0]);
         svg21.append("g")
           .call(d3.axisLeft(y));
@@ -557,7 +560,7 @@
       
         // Add X axis
         var x = d3.scaleLinear()
-          .domain([10000, 100000])
+          .domain([10000, d3.max(data, d => (+d.Male))])
           .range([ 0, width ]);
         svg22.append("g")
           .attr("transform", "translate(0," + height + ")")
@@ -572,7 +575,7 @@
 
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([10000, 150000])
+          .domain([10000, d3.max(data, d => (+d.Female))])
           .range([ height, 0]);
         svg22.append("g")
           .call(d3.axisLeft(y));
@@ -612,7 +615,7 @@
       
         // Add X axis
         var x = d3.scaleLinear()
-          .domain([10000, 100000])
+          .domain([10000, d3.max(data, d => (+d.Male))])
           .range([ 0, width ]);
         svg23.append("g")
           .attr("transform", "translate(0," + height + ")")
@@ -627,7 +630,7 @@
 
         // Add Y axis
         var y = d3.scaleLinear()
-          .domain([10000, 150000])
+          .domain([10000, d3.max(data, d => (+d.Female))])
           .range([ height, 0]);
         svg23.append("g")
           .call(d3.axisLeft(y));
@@ -673,11 +676,21 @@
           .append("g")
             .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+        // Create data
+        function update(selectedGroup){
         // Parse the Data
-        d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
-
-          // Create data
-          function update(selectedGroup){
+          var newData;    
+          d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
+              filteredData = data.filter(function(row){
+                return row['Age'] == selectedGroup;
+              });
+              newData = filteredData.map(function(d){
+                return {
+                  Male: +d.Male,
+                  Female: +d.Female
+                }
+              });
+              data = newData[selectedGroup];
 
               // set the color scale
               var color = d3.scaleOrdinal()
@@ -689,190 +702,220 @@
                 .value(function(d) {return d.value; })
               var data_ready = pie(d3.entries(data))
 
+              // shape helper to build arcs:
+              var arcGenerator = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius)
+
               // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
               svg20
-                .selectAll('whatever')
+                .selectAll('mySlices')
                 .data(data_ready)
                 .enter()
                 .append('path')
-                .filter(function(d){return d.Age == selectedGroup})
-                .attr('d', d3.arc()
-                  .innerRadius(0)
-                  .outerRadius(radius)
-                )
+                .attr('d', arcGenerator)
                 .attr('fill', function(d){ return(color(d.data.key)) })
                 .attr("stroke", "black")
                 .style("stroke-width", "2px")
                 .style("opacity", 0.7)
-              }
-          update(0)
-        })
+
+                svg20
+                  .selectAll('mySlices')
+                  .data(data_ready)
+                  .enter()
+                  .append('text')
+                  .text(function(d){ return d.data.key})
+                  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+                  .style("text-anchor", "middle")
+                  .style("font-size", 17)
+              });
+            
+        
         //)
 
         //Start 2021 Data
         // append the svg object to the body of the page
         var svg21 = d3.select("#chart2021")
           .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", width)
+            .attr("height", height)
           .append("g")
-            .attr("transform",
-                  "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
-        // Add X axis
-        var x = d3.scaleLinear()
-            .domain([10000, 100000])
-            .range([ 0, width ]);
-          svg21.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+          filteredData = data.filter(function(row){
+                return row['Age'] == selectedGroup;
+              });
+              newData = filteredData.map(function(d){
+                return {
+                  Male: +d.Male,
+                  Female: +d.Female
+                }
+              });
+              data = newData[selectedGroup];
 
-          // Add X axis label:
-          svg21.append("text")
-            .attr("text-anchor", "middle")
-            .attr("x", width/2)
-            .attr("y", height + margin.top + 20)
-            .text("Male Population");
+              // set the color scale
+              var color = d3.scaleOrdinal()
+                .domain(data)
+                .range(['#e41a1c','#377eb8'])
 
-          // Add Y axis
-          var y = d3.scaleLinear()
-            .domain([10000, 150000])
-            .range([ height, 0]);
-          svg21.append("g")
-            .call(d3.axisLeft(y));
+              // Compute the position of each group on the pie:
+              var pie = d3.pie()
+                .value(function(d) {return d.value; })
+              var data_ready = pie(d3.entries(data))
 
-          // Y axis label:
-          svg21.append("text")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left+20)
-            .attr("x", -height/2)
-            .text("Female Population");
+              // shape helper to build arcs:
+              var arcGenerator = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius)
 
-          // Add dots
-          svg21.append('g')
-            .selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-              .attr("cx", function (d) { return x(d.Male); } )
-              .attr("cy", function (d) { return y(d.Female); } )
-              .attr("r", 1.5)
-              .style("fill", "#69b3a2")
-              
-        })
+              // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+              svg21
+                .selectAll('mySlices')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', arcGenerator)
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7)
+
+                svg21
+                  .selectAll('mySlices')
+                  .data(data_ready)
+                  .enter()
+                  .append('text')
+                  .text(function(d){ return d.data.key})
+                  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+                  .style("text-anchor", "middle")
+                  .style("font-size", 17)
+              });    
+        
 
         //Start 2022 Data
         // append the svg object to the body of the page
         var svg22 = d3.select("#chart2022")
           .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", width)
+            .attr("height", height)
           .append("g")
-            .attr("transform",
-                  "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2022.csv", function(data) {
+          filteredData = data.filter(function(row){
+                return row['Age'] == selectedGroup;
+              });
+              newData = filteredData.map(function(d){
+                return {
+                  Male: +d.Male,
+                  Female: +d.Female
+                }
+              });
+              data = newData[selectedGroup];
 
-          // Add X axis
-          var x = d3.scaleLinear()
-            .domain([10000, 100000])
-            .range([ 0, width ]);
-          svg22.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+              // set the color scale
+              var color = d3.scaleOrdinal()
+                .domain(data)
+                .range(['#e41a1c','#377eb8'])
 
-          // Add X axis label:
-          svg22.append("text")
-            .attr("text-anchor", "middle")
-            .attr("x", width/2)
-            .attr("y", height + margin.top + 20)
-            .text("Male Population");
+              // Compute the position of each group on the pie:
+              var pie = d3.pie()
+                .value(function(d) {return d.value; })
+              var data_ready = pie(d3.entries(data))
 
-          // Add Y axis
-          var y = d3.scaleLinear()
-            .domain([10000, 150000])
-            .range([ height, 0]);
-          svg22.append("g")
-            .call(d3.axisLeft(y));
+              // shape helper to build arcs:
+              var arcGenerator = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius)
 
-          // Y axis label:
-          svg22.append("text")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left+20)
-            .attr("x", -height/2)
-            .text("Female Population");
+              // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+              svg22
+                .selectAll('mySlices')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', arcGenerator)
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7)
 
-          // Add dots
-          svg22.append('g')
-            .selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-              .attr("cx", function (d) { return x(d.Male); } )
-              .attr("cy", function (d) { return y(d.Female); } )
-              .attr("r", 1.5)
-              .style("fill", "#69b3a2")        
-        })
+                svg22
+                  .selectAll('mySlices')
+                  .data(data_ready)
+                  .enter()
+                  .append('text')
+                  .text(function(d){ return d.data.key})
+                  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+                  .style("text-anchor", "middle")
+                  .style("font-size", 17)
+              });
+        
 
         //Start 2023 Data
         // append the svg object to the body of the page
         var svg23 = d3.select("#chart2023")
           .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", width)
+            .attr("height", height)
           .append("g")
-            .attr("transform",
-                  "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2023.csv", function(data) {
+          filteredData = data.filter(function(row){
+                return row['Age'] == selectedGroup;
+              });
+              newData = filteredData.map(function(d){
+                return {
+                  Male: +d.Male,
+                  Female: +d.Female
+                }
+              });
+              data = newData[selectedGroup];
 
-          // Add X axis
-          var x = d3.scaleLinear()
-            .domain([10000, 100000])
-            .range([ 0, width ]);
-          svg23.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+              // set the color scale
+              var color = d3.scaleOrdinal()
+                .domain(data)
+                .range(['#e41a1c','#377eb8'])
 
-          // Add X axis label:
-          svg23.append("text")
-            .attr("text-anchor", "middle")
-            .attr("x", width/2)
-            .attr("y", height + margin.top + 20)
-            .text("Male Population");
+              // Compute the position of each group on the pie:
+              var pie = d3.pie()
+                .value(function(d) {return d.value; })
+              var data_ready = pie(d3.entries(data))
 
-          // Add Y axis
-          var y = d3.scaleLinear()
-            .domain([10000, 150000])
-            .range([ height, 0]);
-          svg23.append("g")
-            .call(d3.axisLeft(y));
+              // shape helper to build arcs:
+              var arcGenerator = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius)
 
-          // Y axis label:
-          svg23.append("text")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left+20)
-            .attr("x", -height/2)
-            .text("Female Population");
+              // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+              svg23
+                .selectAll('mySlices')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', arcGenerator)
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7)
 
-          // Add dots
-          svg23.append('g')
-            .selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-              .attr("cx", function (d) { return x(d.Male); } )
-              .attr("cy", function (d) { return y(d.Female); } )
-              .attr("r", 1.5)
-              .style("fill", "#69b3a2")       
-        })
+                svg23
+                  .selectAll('mySlices')
+                  .data(data_ready)
+                  .enter()
+                  .append('text')
+                  .text(function(d){ return d.data.key})
+                  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+                  .style("text-anchor", "middle")
+                  .style("font-size", 17)
+              });
+        }
+        update(0)
         }
 
       </script>
