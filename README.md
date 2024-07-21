@@ -15,3 +15,6 @@ https://d3-graph-gallery.com/graph/scatter_basic.html
 
 Annotated Pie Chart Resource:
 https://d3-graph-gallery.com/graph/pie_annotation.html
+
+Dropdown Filter Resource:
+https://d3-graph-gallery.com/graph/line_filter.html
