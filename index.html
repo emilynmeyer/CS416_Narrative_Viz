@@ -17,15 +17,16 @@
     <p>This interactive visualization follows a martini glass structure to explore the population of Illinois 
         between 2020 and 2023 by age and gender.</p>
     <!-- Site Navigation -->
-    <button>1</button>
-    <button>2</button>
-    <button>3</button>
-    <button>Try Me</button>
+    <button id="scene1">1</button>
+    <button id="scene2">2</button>
+    <button id="scene3">3</button>
     </p>
     
     <!-- Dropdown button -->
-    <p>Year</p>
-    <select id = "selectYear"></select>
+    <p>
+      Year
+      <select id = "selectYear"></select>
+    </p>
 
     <style>
       #chart2020.hidden {
@@ -36,6 +37,8 @@
         display: none;}
       #chart2023.hidden {
         display: none;}
+      #Age.hidden {
+        display: none;}
     </style>
 
     <div id="chart2020" class="hidden"></div>
@@ -44,6 +47,31 @@
     <div id="chart2023" class="hidden"></div>
 
     <script>
+      // When the selectYear dropdown is changed, show the correct div
+      d3.select("#scene1").on("click", function(d) {
+        d3.select("#chart2020").html("");
+        d3.select("#chart2021").html("");
+        d3.select("#chart2022").html("");
+        d3.select("#chart2023").html("");
+        scene1()
+      })
+
+      d3.select("#scene2").on("click", function(d) {
+        d3.select("#chart2020").html("");
+        d3.select("#chart2021").html("");
+        d3.select("#chart2022").html("");
+        d3.select("#chart2023").html("");
+        scene2()
+      })
+
+      d3.select("#scene3").on("click", function(d) {
+        d3.select("#chart2020").html("");
+        d3.select("#chart2021").html("");
+        d3.select("#chart2022").html("");
+        d3.select("#chart2023").html("");
+        scene3()
+      })
+
       //List of all years for the dropdown
       var years = ["2020", "2021", "2022", "2023"];
       
@@ -59,25 +87,30 @@
       // When the selectYear dropdown is changed, show the correct div
       d3.select("#selectYear").on("change", function(d) {
         var selectedOption = d3.select(this).property("value")
-        if(selectedOption === "2020"){
-          d3.select("#chart2020").classed("hidden", false);
+        sceneYear(selectedOption)
+      })
+      
+      function sceneYear(selectedYear){
+        if(selectedYear === "2020"){d3.select("#chart2020").classed("hidden", false);
           d3.select("#chart2021").classed("hidden", true);
           d3.select("#chart2022").classed("hidden", true);
           d3.select("#chart2023").classed("hidden", true);}
-        else if(selectedOption === "2021"){d3.select("#chart2020").classed("hidden", true);
+        else if(selectedYear === "2021"){d3.select("#chart2020").classed("hidden", true);
           d3.select("#chart2021").classed("hidden", false);
           d3.select("#chart2022").classed("hidden", true);
           d3.select("#chart2023").classed("hidden", true);}
-        else if(selectedOption === "2022"){d3.select("#chart2020").classed("hidden", true);
+        else if(selectedYear === "2022"){d3.select("#chart2020").classed("hidden", true);
           d3.select("#chart2021").classed("hidden", true);
           d3.select("#chart2022").classed("hidden", false);
           d3.select("#chart2023").classed("hidden", true);}
-        else if(selectedOption === "2023"){d3.select("#chart2020").classed("hidden", true);
+        else if(selectedYear === "2023"){d3.select("#chart2020").classed("hidden", true);
           d3.select("#chart2021").classed("hidden", true);
           d3.select("#chart2022").classed("hidden", true);
           d3.select("#chart2023").classed("hidden", false);}
-      })
+      }
+      sceneYear("2020")
 
+    function scene1(){
       // set the dimensions and margins of the graph
       var margin = {top: 30, right: 30, bottom: 70, left: 80},
           width = 1200 - margin.left - margin.right,
@@ -116,17 +149,32 @@
           .range([ height, 0 ]);
         svg20.append("g")
           .call(d3.axisLeft(y));
+
+        // Add X axis label:
+        svg20.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Age");
+
+        // Y axis label:
+        svg20.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Population");
       
         // color palette = one color per subgroup
         var color = d3.scaleOrdinal()
           .domain(subgroups)
-          .range(['#e41a1c','#377eb8'])
+          .range(['#e41a1c','#377eb8']);
       
         //stack the data? --> stack per subgroup
         var stackedData = d3.stack()
           .keys(subgroups)
           (data)
-      
+
         // Show the bars
         svg20.append("g")
           .selectAll("g")
@@ -141,8 +189,9 @@
               .attr("x", function(d) { return x(d.data.Age); })
               .attr("y", function(d) { return y(d[1]); })
               .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-              .attr("width",x.bandwidth())
-            })
+              .attr("width",x.bandwidth())  
+       })
+
 //Start 2021 Data
       // append the svg object to the body of the page
       var svg21 = d3.select("#chart2021")
@@ -177,6 +226,21 @@
           .range([ height, 0 ]);
         svg21.append("g")
           .call(d3.axisLeft(y));
+
+        // Add X axis label:
+        svg21.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Age");
+
+        // Y axis label:
+        svg21.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Population");
       
         // color palette = one color per subgroup
         var color = d3.scaleOrdinal()
@@ -239,6 +303,21 @@
           .range([ height, 0 ]);
         svg22.append("g")
           .call(d3.axisLeft(y));
+
+        // Add X axis label:
+        svg22.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Age");
+
+        // Y axis label:
+        svg22.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Population");
       
         // color palette = one color per subgroup
         var color = d3.scaleOrdinal()
@@ -301,6 +380,21 @@
           .range([ height, 0 ]);
         svg23.append("g")
           .call(d3.axisLeft(y));
+
+        // Add X axis label:
+        svg23.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Age");
+
+        // Y axis label:
+        svg23.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Population");
       
         // color palette = one color per subgroup
         var color = d3.scaleOrdinal()
@@ -328,21 +422,467 @@
               .attr("height", function(d) { return y(d[0]) - y(d[1]); })
               .attr("width",x.bandwidth())        
       })
+    }
+    scene1()
+
+    function scene2(){
+
+      // set the dimensions and margins of the graph
+      var margin = {top: 30, right: 30, bottom: 70, left: 80},
+          width = 1200 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+      
+      // append the svg object to the body of the page
+      var svg20 = d3.select("#chart2020")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
+      
+        // Add X axis
+        var x = d3.scaleLinear()
+          .domain([10000, 100000])
+          .range([ 0, width ]);
+        svg20.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        // Add X axis label:
+        svg20.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Male Population");
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([10000, 150000])
+          .range([ height, 0]);
+        svg20.append("g")
+          .call(d3.axisLeft(y));
+
+        // Y axis label:
+        svg20.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Female Population");
+
+        // Add dots
+        svg20.append('g')
+          .selectAll("dot")
+          .data(data)
+          .enter()
+          .append("circle")
+            .attr("cx", function (d) { return x(d.Male); } )
+            .attr("cy", function (d) { return y(d.Female); } )
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")
+
+       })
+
+//Start 2021 Data
+      // append the svg object to the body of the page
+      var svg21 = d3.select("#chart2021")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
+      // Add X axis
+      var x = d3.scaleLinear()
+          .domain([10000, 100000])
+          .range([ 0, width ]);
+        svg21.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        // Add X axis label:
+        svg21.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Male Population");
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([10000, 150000])
+          .range([ height, 0]);
+        svg21.append("g")
+          .call(d3.axisLeft(y));
+
+        // Y axis label:
+        svg21.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Female Population");
+
+        // Add dots
+        svg21.append('g')
+          .selectAll("dot")
+          .data(data)
+          .enter()
+          .append("circle")
+            .attr("cx", function (d) { return x(d.Male); } )
+            .attr("cy", function (d) { return y(d.Female); } )
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")
+             
+      })
+
+//Start 2022 Data
+      // append the svg object to the body of the page
+      var svg22 = d3.select("#chart2022")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2022.csv", function(data) {
+      
+        // Add X axis
+        var x = d3.scaleLinear()
+          .domain([10000, 100000])
+          .range([ 0, width ]);
+        svg22.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        // Add X axis label:
+        svg22.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Male Population");
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([10000, 150000])
+          .range([ height, 0]);
+        svg22.append("g")
+          .call(d3.axisLeft(y));
+
+        // Y axis label:
+        svg22.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Female Population");
+
+        // Add dots
+        svg22.append('g')
+          .selectAll("dot")
+          .data(data)
+          .enter()
+          .append("circle")
+            .attr("cx", function (d) { return x(d.Male); } )
+            .attr("cy", function (d) { return y(d.Female); } )
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")        
+      })
+
+//Start 2023 Data
+      // append the svg object to the body of the page
+      var svg23 = d3.select("#chart2023")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+      
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2023.csv", function(data) {
+      
+        // Add X axis
+        var x = d3.scaleLinear()
+          .domain([10000, 100000])
+          .range([ 0, width ]);
+        svg23.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        // Add X axis label:
+        svg23.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", width/2)
+          .attr("y", height + margin.top + 20)
+          .text("Male Population");
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+          .domain([10000, 150000])
+          .range([ height, 0]);
+        svg23.append("g")
+          .call(d3.axisLeft(y));
+
+        // Y axis label:
+        svg23.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.left+20)
+          .attr("x", -height/2)
+          .text("Female Population");
+
+        // Add dots
+        svg23.append('g')
+          .selectAll("dot")
+          .data(data)
+          .enter()
+          .append("circle")
+            .attr("cx", function (d) { return x(d.Male); } )
+            .attr("cy", function (d) { return y(d.Female); } )
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")       
+      })
+    }
+
+    function scene3(){
+
+      d3.select("#Age").classed("hidden", false);
+
+        // set the dimensions and margins of the graph
+        var margin = 40
+            width = 450
+            height = 450
+
+        // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+        var radius = Math.min(width, height) / 2 - margin
+
+        // append the svg object to the body of the page
+        var svg20 = d3.select("#chart2020")
+          .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+          .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        // Parse the Data
+        d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
+
+          // Create data
+          function update(selectedGroup){
+
+              // set the color scale
+              var color = d3.scaleOrdinal()
+                .domain(data)
+                .range(['#e41a1c','#377eb8'])
+
+              // Compute the position of each group on the pie:
+              var pie = d3.pie()
+                .value(function(d) {return d.value; })
+              var data_ready = pie(d3.entries(data))
+
+              // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+              svg20
+                .selectAll('whatever')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .filter(function(d){return d.Age == selectedGroup})
+                .attr('d', d3.arc()
+                  .innerRadius(0)
+                  .outerRadius(radius)
+                )
+                .attr('fill', function(d){ return(color(d.data.key)) })
+                .attr("stroke", "black")
+                .style("stroke-width", "2px")
+                .style("opacity", 0.7)
+              }
+          update(0)
+        })
+        //)
+
+        //Start 2021 Data
+        // append the svg object to the body of the page
+        var svg21 = d3.select("#chart2021")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
+        // Add X axis
+        var x = d3.scaleLinear()
+            .domain([10000, 100000])
+            .range([ 0, width ]);
+          svg21.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+          // Add X axis label:
+          svg21.append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", width/2)
+            .attr("y", height + margin.top + 20)
+            .text("Male Population");
+
+          // Add Y axis
+          var y = d3.scaleLinear()
+            .domain([10000, 150000])
+            .range([ height, 0]);
+          svg21.append("g")
+            .call(d3.axisLeft(y));
+
+          // Y axis label:
+          svg21.append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left+20)
+            .attr("x", -height/2)
+            .text("Female Population");
+
+          // Add dots
+          svg21.append('g')
+            .selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return x(d.Male); } )
+              .attr("cy", function (d) { return y(d.Female); } )
+              .attr("r", 1.5)
+              .style("fill", "#69b3a2")
+              
+        })
+
+        //Start 2022 Data
+        // append the svg object to the body of the page
+        var svg22 = d3.select("#chart2022")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2022.csv", function(data) {
+
+          // Add X axis
+          var x = d3.scaleLinear()
+            .domain([10000, 100000])
+            .range([ 0, width ]);
+          svg22.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+          // Add X axis label:
+          svg22.append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", width/2)
+            .attr("y", height + margin.top + 20)
+            .text("Male Population");
+
+          // Add Y axis
+          var y = d3.scaleLinear()
+            .domain([10000, 150000])
+            .range([ height, 0]);
+          svg22.append("g")
+            .call(d3.axisLeft(y));
+
+          // Y axis label:
+          svg22.append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left+20)
+            .attr("x", -height/2)
+            .text("Female Population");
+
+          // Add dots
+          svg22.append('g')
+            .selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return x(d.Male); } )
+              .attr("cy", function (d) { return y(d.Female); } )
+              .attr("r", 1.5)
+              .style("fill", "#69b3a2")        
+        })
+
+        //Start 2023 Data
+        // append the svg object to the body of the page
+        var svg23 = d3.select("#chart2023")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        // Parse the Data
+        d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2023.csv", function(data) {
+
+          // Add X axis
+          var x = d3.scaleLinear()
+            .domain([10000, 100000])
+            .range([ 0, width ]);
+          svg23.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+          // Add X axis label:
+          svg23.append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", width/2)
+            .attr("y", height + margin.top + 20)
+            .text("Male Population");
+
+          // Add Y axis
+          var y = d3.scaleLinear()
+            .domain([10000, 150000])
+            .range([ height, 0]);
+          svg23.append("g")
+            .call(d3.axisLeft(y));
+
+          // Y axis label:
+          svg23.append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left+20)
+            .attr("x", -height/2)
+            .text("Female Population");
+
+          // Add dots
+          svg23.append('g')
+            .selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return x(d.Male); } )
+              .attr("cy", function (d) { return y(d.Female); } )
+              .attr("r", 1.5)
+              .style("fill", "#69b3a2")       
+        })
+        }
 
       </script>
     
     <!-- Slider -->
-        <p>Minimum Age</p>
-        <input type="range" name="minimumAge" min="0" max = "85+">
+      <div id="Age" class="hidden">
+        Age
+        <input type="range" name="selectAge" min="0" max = "85+">
+      </div>
 
-        <p>Maximum Age</p>
-        <input type="range" name="maximumAge" min="0" max = "85+">
-    
-    <!-- Button -->
-        <div>
-          <input type="checkbox" class="checkbox" value="Male" checked><label>Male</label>
-          <input type="checkbox" class="checkbox" value="Female" checked><label>Female</label>
-        </div>
 
   </body>
 </html>
