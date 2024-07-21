@@ -9,3 +9,6 @@ https://www.census.gov/data/datasets/time-series/demo/popest/2020s-state-detail.
 
 Stacked Bargraph Resource:
 https://d3-graph-gallery.com/graph/barplot_stacked_basicWide.html
+
+Scatter Plot Resource:
+https://d3-graph-gallery.com/graph/scatter_basic.html
