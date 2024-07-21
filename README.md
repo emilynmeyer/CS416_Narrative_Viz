@@ -12,3 +12,6 @@ https://d3-graph-gallery.com/graph/barplot_stacked_basicWide.html
 
 Scatter Plot Resource:
 https://d3-graph-gallery.com/graph/scatter_basic.html
+
+Annotated Pie Chart Resource:
+https://d3-graph-gallery.com/graph/pie_annotation.html
