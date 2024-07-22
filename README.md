@@ -19,3 +19,6 @@ https://d3-graph-gallery.com/graph/pie_annotation.html
 
 Dropdown Filter:
 https://d3-graph-gallery.com/graph/line_filter.html
+
+Mouseover Effects:
+https://medium.com/@kj_schmidt/hover-effects-for-your-scatter-plot-447df80ea116
