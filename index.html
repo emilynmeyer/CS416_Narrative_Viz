@@ -14,7 +14,7 @@
     <h2>Population by Age and Gender in Illinois</h2>
     <h3>By: Emily Meyer</h3>
 
-    <p>This interactive visualization follows a martini glass structure to explore the population of Illinois 
+    <p>This interactive visualization follows an interactive slide show structure to explore the population of Illinois 
         between 2020 and 2023 by age and gender.</p>
     <!-- Site Navigation -->
     <button id="scene1">1</button>
@@ -40,6 +40,12 @@
       #Age.hidden {
         display: none;}
     </style>
+
+    <!-- Dropdown -->
+    <div id="Age" class="hidden">
+      Age
+      <select id="selectAge"></select>
+    </div>
 
     <div id="chart2020" class="hidden"></div>
     <div id="chart2021" class="hidden"></div>
@@ -69,6 +75,7 @@
         d3.select("#chart2021").html("");
         d3.select("#chart2022").html("");
         d3.select("#chart2023").html("");
+        d3.select("#selectAge").html("");
         scene3()
       })
 
@@ -657,9 +664,39 @@
     }
 
     function scene3(){
+        d3.select("#Age").classed("hidden", false);
 
-      d3.select("#Age").classed("hidden", false);
+        //List of all years for the dropdown
+        var ages = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", 
+          "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+          "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+          "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+          "40", "41", "42", "43", "44", "45", "46", "47", "48", "49",
+          "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
+          "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",
+          "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
+          "80", "81", "82", "83", "84", "85+"];
+        
+        // add the years to the dropdown
+        d3.select("#selectAge")
+            .selectAll('myOptions')
+              .data(ages)
+            .enter()
+              .append('option')
+            .text(function (d) { return d; }) // text showed in the menu
+            .attr("value", function (d) { return d; }); // corresponding value returned by the button
+        
+        // When the selectYear dropdown is changed, show the correct div
+        d3.select("#selectAge").on("change", function(d) {
+          var selectedAge = d3.select(this).property('value')
+          d3.select("#chart2020").html("");
+          d3.select("#chart2021").html("");
+          d3.select("#chart2022").html("");
+          d3.select("#chart2023").html("");
+          update(selectedAge)
+        })
 
+        function update(selectedGroup){
         // set the dimensions and margins of the graph
         var margin = 40
             width = 450
@@ -676,21 +713,19 @@
           .append("g")
             .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-        // Create data
-        function update(selectedGroup){
         // Parse the Data
           var newData;    
           d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2020.csv", function(data) {
-              filteredData = data.filter(function(row){
+              data = data.filter(function(row){
                 return row['Age'] == selectedGroup;
               });
-              newData = filteredData.map(function(d){
+              data = data.map(function(d){
                 return {
                   Male: +d.Male,
                   Female: +d.Female
                 }
               });
-              data = newData[selectedGroup];
+              data = data[0];
 
               // set the color scale
               var color = d3.scaleOrdinal()
@@ -744,16 +779,16 @@
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2021.csv", function(data) {
-          filteredData = data.filter(function(row){
+            data = data.filter(function(row){
                 return row['Age'] == selectedGroup;
               });
-              newData = filteredData.map(function(d){
+              data = data.map(function(d){
                 return {
                   Male: +d.Male,
                   Female: +d.Female
                 }
               });
-              data = newData[selectedGroup];
+              data = data[0];
 
               // set the color scale
               var color = d3.scaleOrdinal()
@@ -805,16 +840,16 @@
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2022.csv", function(data) {
-          filteredData = data.filter(function(row){
+            data = data.filter(function(row){
                 return row['Age'] == selectedGroup;
               });
-              newData = filteredData.map(function(d){
+              data = data.map(function(d){
                 return {
                   Male: +d.Male,
                   Female: +d.Female
                 }
               });
-              data = newData[selectedGroup];
+              data = data[0];
 
               // set the color scale
               var color = d3.scaleOrdinal()
@@ -866,16 +901,16 @@
 
         // Parse the Data
         d3.csv("https://raw.githubusercontent.com/emilynmeyer/CS416_Narrative_Viz/main/data/Illinois_Pop_by_Gender_2023.csv", function(data) {
-          filteredData = data.filter(function(row){
+            data = data.filter(function(row){
                 return row['Age'] == selectedGroup;
               });
-              newData = filteredData.map(function(d){
+              data = data.map(function(d){
                 return {
                   Male: +d.Male,
                   Female: +d.Female
                 }
               });
-              data = newData[selectedGroup];
+              data = data[0];
 
               // set the color scale
               var color = d3.scaleOrdinal()
@@ -915,16 +950,13 @@
                   .style("font-size", 17)
               });
         }
-        update(0)
+        update('0')
         }
 
       </script>
-    
-    <!-- Slider -->
-      <div id="Age" class="hidden">
-        Age
-        <input type="range" name="selectAge" min="0" max = "85+">
-      </div>
+
+  </body>
+</html>
 
 
   </body>
