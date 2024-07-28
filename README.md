@@ -2,6 +2,7 @@
 Final Project for UIUC CS416 Data Visualization
 
 Resources:
+
 Dataset Retrieved from the US Census Bureau:
 https://www.census.gov/data/datasets/time-series/demo/popest/2020s-state-detail.html
 
